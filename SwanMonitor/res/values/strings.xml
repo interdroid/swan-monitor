@@ -17,7 +17,7 @@
     <string name="recording">Now recording</string>
     <string name="about">About this app</string>
     <string name="noReading">Waiting for first data</string>
-    <string name="sensorSelection">Make your selection</string>
+    <string name="sensorSelection">Select Sensor</string>
     <string name="newReadingFormatted">Data: %1$s </string>
     <string name="exitApp">Are you sure you want to exit Swan Monitor?</string>
     <string name="exitWhileRecording">\nThis will end the current recording.</string>
@@ -41,5 +41,6 @@
     <string name="GPXFileGenerated">GPX file is being generated</string>
     <string name="TrackFileWillBeGenerated">Track file will be generated</string>
     <string name="TrackFileWillNotBeGenerated">Track file generation disabled</string>
+    <string name="emptySensorList">No sensors registered.\nClick + button to start sensor registration.</string>
 
 </resources>

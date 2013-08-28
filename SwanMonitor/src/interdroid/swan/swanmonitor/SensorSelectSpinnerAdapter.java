@@ -12,21 +12,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class SensorSelectSpinnerAdapter extends ArrayAdapter<String> {
+public class SensorSelectSpinnerAdapter extends ArrayAdapter<SensorInfo> {
 
-	String[] names, description;
 	Context context;
 	List<SensorInfo> swanSensorList;
 
-	public SensorSelectSpinnerAdapter(Context context, int textViewResourceId, String[] objects,
+	public SensorSelectSpinnerAdapter(Context context, int textViewResourceId,
 			List<SensorInfo> swanSensorList) {
-		super(context, textViewResourceId, objects);
+		super(context, textViewResourceId, swanSensorList);
 		this.context = context;
-		this.names = objects;
-		// Might be neater to replace with list of drawables
 		this.swanSensorList = swanSensorList;
-		// description = names, but might be useful later
-		this.description = objects;
 	}
 
 	@Override
@@ -40,17 +35,19 @@ public class SensorSelectSpinnerAdapter extends ArrayAdapter<String> {
 	}
 
 	public View getCustomView(int position, View convertView, ViewGroup parent) {
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View row = inflater.inflate(R.layout.spinner_row, parent, false);
-		TextView label = (TextView) row.findViewById(R.id.company);
-		label.setText(names[position]);
+		if (convertView == null) {
+			convertView = LayoutInflater.from(context).inflate(
+					R.layout.spinner_row, null);
+		}
+		TextView label = (TextView) convertView.findViewById(R.id.sensors);
+		label.setText(swanSensorList.get(position).getEntity());
 
-		TextView sub = (TextView) row.findViewById(R.id.sub);
-		sub.setText("Click to add the " + description[position] + " sensor");
+		TextView sub = (TextView) convertView.findViewById(R.id.valuepaths);
+		sub.setText(swanSensorList.get(position).getValuePaths().toString());
 
-		ImageView icon = (ImageView) row.findViewById(R.id.image);
+		ImageView icon = (ImageView) convertView.findViewById(R.id.image);
 		icon.setImageDrawable(swanSensorList.get(position).getIcon());
 
-		return row;
+		return convertView;
 	}
 }

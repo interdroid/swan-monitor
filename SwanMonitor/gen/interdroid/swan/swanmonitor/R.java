@@ -76,38 +76,36 @@ public final class R {
         public static final int wifi_icon=0x7f020023;
     }
     public static final class id {
-        public static final int RelativeLayout1=0x7f0c000f;
-        public static final int about=0x7f0c001c;
-        public static final int add_sensor=0x7f0c0018;
-        public static final int add_sensor_button=0x7f0c000e;
-        public static final int button1=0x7f0c0003;
-        public static final int button2=0x7f0c0004;
-        public static final int check_register=0x7f0c0019;
-        public static final int company=0x7f0c0015;
-        public static final int context_delete=0x7f0c001d;
-        public static final int context_edit=0x7f0c001f;
-        public static final int context_export_options=0x7f0c001e;
-        public static final int emptylist=0x7f0c0008;
-        public static final int export_file_textView=0x7f0c000b;
-        public static final int export_server_textView=0x7f0c000c;
-        public static final int export_textView=0x7f0c000a;
-        public static final int exports=0x7f0c001a;
-        public static final int expression_textView=0x7f0c0007;
-        public static final int file_root_empty=0x7f0c0013;
-        public static final int image=0x7f0c0014;
+        public static final int RelativeLayout1=0x7f0c0002;
+        public static final int about=0x7f0c001a;
+        public static final int add_sensor=0x7f0c0016;
+        public static final int add_sensor_button=0x7f0c0011;
+        public static final int check_register=0x7f0c0017;
+        public static final int context_delete=0x7f0c001b;
+        public static final int context_edit=0x7f0c001d;
+        public static final int context_export_options=0x7f0c001c;
+        public static final int emptylist=0x7f0c000a;
+        public static final int export_file_textView=0x7f0c000e;
+        public static final int export_server_textView=0x7f0c000f;
+        public static final int export_textView=0x7f0c000d;
+        public static final int exports=0x7f0c0018;
+        public static final int expression_textView=0x7f0c0009;
+        public static final int file_root_empty=0x7f0c0006;
+        public static final int image=0x7f0c0012;
         public static final int info_text=0x7f0c0000;
         public static final int legal_text=0x7f0c0001;
-        public static final int listV_main=0x7f0c0011;
-        public static final int listview=0x7f0c000d;
-        public static final int onReading_textView=0x7f0c0009;
-        public static final int sensorIcon_imageView=0x7f0c0005;
-        public static final int sensorName_textView=0x7f0c0006;
-        public static final int sensor_root_empty=0x7f0c0012;
-        public static final int settings=0x7f0c001b;
-        public static final int start_exporting=0x7f0c0017;
-        public static final int sub=0x7f0c0016;
-        public static final int textView1=0x7f0c0002;
-        public static final int trackExport_TV=0x7f0c0010;
+        public static final int listV_main=0x7f0c0004;
+        public static final int listview=0x7f0c0010;
+        public static final int onReading_textView=0x7f0c000c;
+        public static final int sensorIcon_imageView=0x7f0c0007;
+        public static final int sensorName_textView=0x7f0c0008;
+        public static final int sensor_root_empty=0x7f0c0005;
+        public static final int sensors=0x7f0c0013;
+        public static final int settings=0x7f0c0019;
+        public static final int start_exporting=0x7f0c0015;
+        public static final int textView1=0x7f0c000b;
+        public static final int trackExport_TV=0x7f0c0003;
+        public static final int valuepaths=0x7f0c0014;
     }
     public static final class layout {
         public static final int about=0x7f030000;
@@ -117,8 +115,7 @@ public final class R {
         public static final int emptysensorlist=0x7f030004;
         public static final int item_details_view=0x7f030005;
         public static final int list_layout=0x7f030006;
-        public static final int mainlistactivity=0x7f030007;
-        public static final int spinner_row=0x7f030008;
+        public static final int spinner_row=0x7f030007;
     }
     public static final class menu {
         public static final int default_actionbar=0x7f0b0000;
@@ -139,6 +136,7 @@ public final class R {
         public static final int addSensorFirst=0x7f090008;
         public static final int app_name=0x7f090000;
         public static final int edit_context_string=0x7f090003;
+        public static final int emptySensorList=0x7f090028;
         public static final int exitApp=0x7f090012;
         public static final int exitWhileRecording=0x7f090013;
         public static final int exportDialogTitle=0x7f090006;

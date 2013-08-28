@@ -31,7 +31,7 @@ public class FileBrowseActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.mainlistactivity);
+		setContentView(R.layout.activity_main);
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		setupFileListView();

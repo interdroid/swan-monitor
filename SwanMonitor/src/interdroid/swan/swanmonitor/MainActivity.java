@@ -39,6 +39,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -53,14 +54,13 @@ import android.widget.Toast;
 @SuppressLint("NewApi")
 public class MainActivity extends Activity {
 	List<SensorInfo> swanSensorList;
-	ArrayList<SensorObject> active_sensors;
-	SensorObject temp_sensor;
+	ArrayList<SensorObject> activeSensors;
+	SensorObject tempSensor;
 	ListView sensorDataListView;
 	ActionMode.Callback mCallback;
 	ActionMode mMode;
 	private int lastLongClicked;
 	private boolean recording;
-	String[] sensorConfigurations;
 	// GPS
 	GPSTrackExporter gpsFile = null;
 
@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.mainlistactivity);
+		setContentView(R.layout.activity_main);
 		initializeVariables();
 		setupListView();
 		createContextActionBar();
@@ -87,11 +87,14 @@ public class MainActivity extends Activity {
 	 * doesn't exit yet.
 	 */
 	private void createSwanMonitorDirectory() {
-		File direct = new File(Environment.getExternalStorageDirectory() + "/SwanMonitor");
+		File direct = new File(Environment.getExternalStorageDirectory()
+				+ "/SwanMonitor");
 
 		if (!direct.exists()) {
 			if (direct.mkdir()) {
-				Toast.makeText(this, "SwanMonitor directory created on SD Card.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this,
+						"SwanMonitor directory created on SD Card.",
+						Toast.LENGTH_SHORT).show();
 			}
 
 		}
@@ -106,20 +109,17 @@ public class MainActivity extends Activity {
 
 			@Override
 			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			@Override
 			public void onDestroyActionMode(ActionMode mode) {
 				mMode = null;
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-				mode.setTitle(active_sensors.get(lastLongClicked).getName());
+				mode.setTitle(activeSensors.get(lastLongClicked).getName());
 				getMenuInflater().inflate(R.menu.longclick_context_menu, menu);
 				return true;
 			}
@@ -128,23 +128,28 @@ public class MainActivity extends Activity {
 			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 				switch (item.getItemId()) {
 				case R.id.context_export_options:
-					// TODO: Launch export option spinner
 					editExportOptions(lastLongClicked);
 					mode.finish();
 					break;
 				case R.id.context_delete:
 					Toast.makeText(
 							getBaseContext(),
-							active_sensors.get(lastLongClicked).getName() + getResources().getString(R.string.sensorRemoved),
+							activeSensors.get(lastLongClicked).getName()
+									+ getResources().getString(
+											R.string.sensorRemoved),
 							Toast.LENGTH_SHORT).show();
 					deleteSensorfromList(lastLongClicked);
 					mode.finish();
 					break;
 				case R.id.context_edit:
 					unregisterSensor(lastLongClicked);
-					startActivityForResult(swanSensorList.get(active_sensors.get(lastLongClicked).getSensorId())
-							.getConfigurationIntent(),
-							Integer.parseInt(active_sensors.get(lastLongClicked).getRequestCode()));
+					startActivityForResult(
+							swanSensorList.get(
+									activeSensors.get(lastLongClicked)
+											.getSensorId())
+									.getConfigurationIntent(),
+							Integer.parseInt(activeSensors.get(lastLongClicked)
+									.getRequestCode()));
 					mode.finish();
 					break;
 				}
@@ -162,41 +167,44 @@ public class MainActivity extends Activity {
 	 */
 	private void editExportOptions(final int sensorPosition) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getResources().getString(R.string.exportDialogTitle)).setItems(R.array.export_options_array,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						SensorObject sensor = active_sensors.get(sensorPosition);
-						switch (which) {
-						case 0:
-							// Do not export
-							sensor.setExportToFile(false);
-							sensor.setExportToServer(false);
-							updateListViewAdapter();
-							break;
-						case 1:
-							// Export to file only (default)
-							sensor.setExportToFile(true);
-							sensor.setExportToServer(false);
-							updateListViewAdapter();
-							break;
-						case 2:
-							// Export to server only
-							sensor.setExportToFile(false);
-							sensor.setExportToServer(true);
-							updateListViewAdapter();
-							break;
-						case 3:
-							// export to file and server
-							sensor.setExportToFile(true);
-							sensor.setExportToServer(true);
-							updateListViewAdapter();
-							break;
+		builder.setTitle(getResources().getString(R.string.exportDialogTitle))
+				.setItems(R.array.export_options_array,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								SensorObject sensor = activeSensors
+										.get(sensorPosition);
+								switch (which) {
+								case 0:
+									// Do not export
+									sensor.setExportToFile(false);
+									sensor.setExportToServer(false);
+									updateListViewAdapter();
+									break;
+								case 1:
+									// Export to file only (default)
+									sensor.setExportToFile(true);
+									sensor.setExportToServer(false);
+									updateListViewAdapter();
+									break;
+								case 2:
+									// Export to server only
+									sensor.setExportToFile(false);
+									sensor.setExportToServer(true);
+									updateListViewAdapter();
+									break;
+								case 3:
+									// export to file and server
+									sensor.setExportToFile(true);
+									sensor.setExportToServer(true);
+									updateListViewAdapter();
+									break;
 
-						default:
-							break;
-						}
-					}
-				});
+								default:
+									break;
+								}
+							}
+						});
 		builder.create();
 		builder.show();
 	}
@@ -206,8 +214,8 @@ public class MainActivity extends Activity {
 	 */
 	private void initializeVariables() {
 		recording = false;
-		// Create emtpy sensorDetails list
-		active_sensors = new ArrayList<SensorObject>();
+		// Create empty sensorDetails list
+		activeSensors = new ArrayList<SensorObject>();
 		// Get available sensors from swan framework
 		swanSensorList = ExpressionManager.getSensors(MainActivity.this);
 	}
@@ -219,34 +227,41 @@ public class MainActivity extends Activity {
 		// Set up default listview
 		sensorDataListView = (ListView) findViewById(R.id.listV_main);
 		sensorDataListView.setEmptyView(findViewById(R.id.sensor_root_empty));
-		sensorDataListView.setAdapter(new SensorListBaseAdapter(this, active_sensors));
+		sensorDataListView.setAdapter(new SensorListBaseAdapter(this,
+				activeSensors));
 
 		sensorDataListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> a, View v, int position, long id) {
-				Object o = sensorDataListView.getItemAtPosition(position);
-				SensorObject obj_itemDetails = (SensorObject) o;
-				String toastMessage = String.format(getResources().getString(R.string.holdSensorToEdit),
-						obj_itemDetails.getName());
-				Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+			public void onItemClick(AdapterView<?> a, View v, int position,
+					long id) {
+				SensorObject currentSensor = (SensorObject) sensorDataListView
+						.getItemAtPosition(position);
+				String toastMessage = String.format(
+						getResources().getString(R.string.holdSensorToEdit),
+						currentSensor.getName());
+				Toast.makeText(getApplicationContext(), toastMessage,
+						Toast.LENGTH_SHORT).show();
 			}
 		});
 
-		sensorDataListView.setOnItemLongClickListener(new OnItemLongClickListener() {
+		sensorDataListView
+				.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				// Set lastLongClicked variable, used to know which sensor (in
-				// displayed_sensors_list) has to be edited.
-				lastLongClicked = arg2;
-				if (mMode != null) {
-					return false;
-				} else {
-					mMode = startActionMode(mCallback);
-				}
-				return true;
-			}
-		});
+					@Override
+					public boolean onItemLongClick(AdapterView<?> arg0,
+							View arg1, int arg2, long arg3) {
+						// Set lastLongClicked variable, used to know which
+						// sensor (in
+						// displayed_sensors_list) has to be edited.
+						lastLongClicked = arg2;
+						if (mMode != null) {
+							return false;
+						} else {
+							mMode = startActionMode(mCallback);
+						}
+						return true;
+					}
+				});
 	}
 
 	@Override
@@ -261,12 +276,12 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.add_sensor:
 			createAndShowSensorDialog();
-			sensorConfigurations = new String[1];
 			break;
 		case R.id.start_exporting:
-			if (active_sensors.isEmpty()) {
-				Toast.makeText(getBaseContext(), getResources().getString(R.string.addSensorFirst), Toast.LENGTH_LONG)
-						.show();
+			if (activeSensors.isEmpty()) {
+				Toast.makeText(getBaseContext(),
+						getResources().getString(R.string.addSensorFirst),
+						Toast.LENGTH_LONG).show();
 				break;
 			}
 			if (recording) {
@@ -303,7 +318,9 @@ public class MainActivity extends Activity {
 	 * Call to start recording sensor data
 	 */
 	private void startRecording() {
-		Toast.makeText(this, getResources().getString(R.string.startedRecording), Toast.LENGTH_SHORT).show();
+		Toast.makeText(this,
+				getResources().getString(R.string.startedRecording),
+				Toast.LENGTH_SHORT).show();
 		recording = true;
 		setTitle(getResources().getString(R.string.recording));
 	}
@@ -312,7 +329,9 @@ public class MainActivity extends Activity {
 	 * Call to stop recording sensor data
 	 */
 	private void stopRecording() {
-		Toast.makeText(this, getResources().getString(R.string.stoppedRecording), Toast.LENGTH_SHORT).show();
+		Toast.makeText(this,
+				getResources().getString(R.string.stoppedRecording),
+				Toast.LENGTH_SHORT).show();
 		recording = false;
 		closeAllExportingFiles();
 		setTitle(getResources().getString(R.string.app_name));
@@ -336,14 +355,16 @@ public class MainActivity extends Activity {
 	 */
 	private void settings() {
 		Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
-		MainActivity.this.startActivityForResult(myIntent, SETTINGS_REQUESTCODE);
+		MainActivity.this
+				.startActivityForResult(myIntent, SETTINGS_REQUESTCODE);
 	}
 
 	/**
 	 * Starts the file browser
 	 */
 	private void startFileBrowser() {
-		Intent myIntent = new Intent(MainActivity.this, FileBrowseActivity.class);
+		Intent myIntent = new Intent(MainActivity.this,
+				FileBrowseActivity.class);
 		MainActivity.this.startActivity(myIntent);
 	}
 
@@ -357,30 +378,32 @@ public class MainActivity extends Activity {
 	private void addItemToList(int item) {
 
 		// Create new Object to store all sensor info
-		temp_sensor = new SensorObject();
+		tempSensor = new SensorObject();
 		// Set name of sensor
-		temp_sensor.setName(swanSensorList.get(item).toString());
+		tempSensor.setName(swanSensorList.get(item).toString());
 		// Set initial string for readings
-		temp_sensor.setReadings(getResources().getString(R.string.noReading));
+		tempSensor.setReadings(getResources().getString(R.string.noReading));
 		// Set sensorId, used to call startActivityForResult
-		temp_sensor.setSensorId(item);
+		tempSensor.setSensorId(item);
 		// Add drawable from Swan Framework to Sensor details.
-		temp_sensor.setIcon(swanSensorList.get(item).getIcon());
+		tempSensor.setIcon(swanSensorList.get(item).getIcon());
 
 		// Store the corresponding units
 		ArrayList<String> units = swanSensorList.get(item).getUnits();
-		temp_sensor.setUnits(units);
+		tempSensor.setUnits(units);
 
 		// Check if valuepath "status_text" is available and set flag
-		temp_sensor.setHasStatusTextVP(swanSensorList.get(item).getValuePaths().contains("status_text"));
+		tempSensor.setHasStatusTextVP(swanSensorList.get(item).getValuePaths()
+				.contains("status_text"));
 
 		// Set exported (default Swan behaviour)
-		temp_sensor.setExportToFile(true);
-		temp_sensor.setExportToServer(false);
+		tempSensor.setExportToFile(false);
+		tempSensor.setExportToServer(false);
 
 		// Start the sensor configuration
-		startActivityForResult(swanSensorList.get(item).getConfigurationIntent(),
-				Integer.parseInt(temp_sensor.getRequestCode()));
+		startActivityForResult(swanSensorList.get(item)
+				.getConfigurationIntent(), Integer.parseInt(tempSensor
+				.getRequestCode()));
 	}
 
 	/**
@@ -391,24 +414,26 @@ public class MainActivity extends Activity {
 	 */
 	private void deleteSensorfromList(int item) {
 		unregisterSensor(item);
-		active_sensors.remove(item);
-		sensorDataListView.setAdapter(new SensorListBaseAdapter(this, active_sensors));
+		activeSensors.remove(item);
+		sensorDataListView.setAdapter(new SensorListBaseAdapter(this,
+				activeSensors));
 	}
 
 	/**
 	 * Calls registerSensor() on all sensors in the list.
 	 */
 	private void registerSensorsWithSwan() {
+		System.out.println("from resume...");
 		int i = 0;
-		while (i < active_sensors.size()) {
+		while (i < activeSensors.size()) {
 			registerSensor(i);
 			i++;
 		}
 	}
 
 	private int getSensorPositionFromRequestCode(String requestCode) {
-		for (int i = 0; i < active_sensors.size(); i++) {
-			if (active_sensors.get(i).getRequestCode().equals(requestCode)) {
+		for (int i = 0; i < activeSensors.size(); i++) {
+			if (activeSensors.get(i).getRequestCode().equals(requestCode)) {
 				return i;
 			}
 		}
@@ -422,51 +447,64 @@ public class MainActivity extends Activity {
 	 *            the position of the sensor to be registered.
 	 */
 	private void registerSensor(final int sensorPosition) {
-		if (active_sensors.get(sensorPosition).registeredWithSwan()) {
-			System.out.println("Sensor " + sensorPosition + " already registered");
+		System.out.println("register sensor " + sensorPosition);
+		if (activeSensors.get(sensorPosition).registeredWithSwan()) {
+			System.out.println("Sensor " + sensorPosition
+					+ " already registered");
 			return;
 		}
 		try {
-			String expression = active_sensors.get(sensorPosition).getExpression();
+			String expression = activeSensors.get(sensorPosition)
+					.getExpression();
 
-			String id = active_sensors.get(sensorPosition).getRequestCode();
-			ExpressionManager.registerValueExpression(this, id, (ValueExpression) ExpressionFactory.parse(expression),
+			String id = activeSensors.get(sensorPosition).getRequestCode();
+			ExpressionManager.registerValueExpression(this, id,
+					(ValueExpression) ExpressionFactory.parse(expression),
 					new ValueExpressionListener() {
 
 						@Override
-						public void onNewValues(String id, TimestampedValue[] arg1) {
+						public void onNewValues(String id,
+								TimestampedValue[] arg1) {
+							System.out.println("on new values...");
 							if (arg1 != null && arg1.length > 0) {
 								// Can not use static sensorPosition because the
 								// position might have changed
 								// Because another sensor was deleted
-								handleReading(arg1[0], getSensorPositionFromRequestCode(id));
+								handleReading(arg1[0],
+										getSensorPositionFromRequestCode(id));
 							} else {
-								Log.d(TAG, active_sensors.get(getSensorPositionFromRequestCode(id)).getExpression()
-										+ " returned null reading");
+								Log.d(TAG,
+										activeSensors
+												.get(getSensorPositionFromRequestCode(id))
+												.getExpression()
+												+ " returned null reading");
 							}
 
 						}
 					});
-
-			// Mark sensor as succefully registered and update listview
-			active_sensors.get(sensorPosition).setRegisteredWithSwan(true);
+			System.out.println("registered!");
+			// Mark sensor as successfully registered and update listview
+			activeSensors.get(sensorPosition).setRegisteredWithSwan(true);
 			updateListViewAdapter();
 
-			if (active_sensors.get(sensorPosition).hasStatusTextVP()
-					&& !active_sensors.get(sensorPosition).statusRegisteredWithSwan()) {
+			if (activeSensors.get(sensorPosition).hasStatusTextVP()
+					&& !activeSensors.get(sensorPosition)
+							.statusRegisteredWithSwan()) {
 				// if status text is available also register this and show
 				// update in title bar of sensor
 				registerStatusText(sensorPosition);
 			}
 
 		} catch (ExpressionParseException e) {
-			System.out.println("Problem parsing expression (in method registerSensor)");
+			System.out
+					.println("Problem parsing expression (in method registerSensor)");
 			e.printStackTrace();
 		} catch (SwanException e) {
 			System.out.println("Swan Exception (in method registerSensor)");
-			active_sensors.get(sensorPosition).setRegisteredWithSwan(false);
+			activeSensors.get(sensorPosition).setRegisteredWithSwan(false);
 			e.printStackTrace();
 		}
+		System.out.println("done");
 	}
 
 	/**
@@ -476,36 +514,47 @@ public class MainActivity extends Activity {
 	 *            the position of the sensor to be (status) registered
 	 */
 	private void registerStatusText(final int sensorPosition) {
-		String statusTextExpression = active_sensors.get(sensorPosition).getExpression();
-		statusTextExpression = statusTextExpression.replace(sensorTools.parseExpression(statusTextExpression)[1],
+		String statusTextExpression = activeSensors.get(sensorPosition)
+				.getExpression();
+		statusTextExpression = statusTextExpression.replace(
+				SensorTools.parseExpression(statusTextExpression)[1],
 				"status_text");
-		String statusId = active_sensors.get(sensorPosition).getStatusRequestCode();
-		final String id = active_sensors.get(sensorPosition).getRequestCode();
+		String statusId = activeSensors.get(sensorPosition)
+				.getStatusRequestCode();
+		final String id = activeSensors.get(sensorPosition).getRequestCode();
 
 		try {
 
 			ExpressionManager.registerValueExpression(this, statusId,
-					(ValueExpression) ExpressionFactory.parse(statusTextExpression), new ValueExpressionListener() {
+					(ValueExpression) ExpressionFactory
+							.parse(statusTextExpression),
+					new ValueExpressionListener() {
 
 						@Override
-						public void onNewValues(String arg0, TimestampedValue[] arg1) {
+						public void onNewValues(String arg0,
+								TimestampedValue[] arg1) {
 							if (arg1 != null && arg1.length > 0) {
-								handleStatusReading(arg1[0].getValue().toString(), getSensorPositionFromRequestCode(id));
+								handleStatusReading(arg1[0].getValue()
+										.toString(),
+										getSensorPositionFromRequestCode(id));
 							} else {
-								System.out.println(active_sensors.get(sensorPosition).getExpression()
+								System.out.println(activeSensors.get(
+										sensorPosition).getExpression()
 										+ " returned null reading");
 							}
 
 						}
 					});
 
-			active_sensors.get(sensorPosition).setStatusRegisteredWithSwan(true);
+			activeSensors.get(sensorPosition).setStatusRegisteredWithSwan(true);
 		} catch (ExpressionParseException e) {
-			System.out.println("Problem parsing expression (in method registerStatusText)");
+			System.out
+					.println("Problem parsing expression (in method registerStatusText)");
 			e.printStackTrace();
 		} catch (SwanException e) {
 			System.out.println("Swan Exception (in method registerStatusText)");
-			active_sensors.get(sensorPosition).setStatusRegisteredWithSwan(false);
+			activeSensors.get(sensorPosition)
+					.setStatusRegisteredWithSwan(false);
 			e.printStackTrace();
 		}
 	}
@@ -515,7 +564,7 @@ public class MainActivity extends Activity {
 	 */
 	private void unregisterSensorsWithSwan() {
 		int i = 0;
-		while (i < active_sensors.size()) {
+		while (i < activeSensors.size()) {
 			unregisterSensor(i);
 			i++;
 		}
@@ -530,20 +579,21 @@ public class MainActivity extends Activity {
 	 *            the position of the sensor that should be unregistered
 	 */
 	private void unregisterSensor(int sensorPosition) {
-		String id = active_sensors.get(sensorPosition).getRequestCode();
+		String id = activeSensors.get(sensorPosition).getRequestCode();
 		// If status is available for this sensor, unregister that first.
-		if (active_sensors.get(sensorPosition).hasStatusTextVP()) {
+		if (activeSensors.get(sensorPosition).hasStatusTextVP()) {
 			unregisterStatusText(sensorPosition);
 		}
 
-		if (active_sensors.get(sensorPosition).registeredWithSwan()) {
+		if (activeSensors.get(sensorPosition).registeredWithSwan()) {
 			ExpressionManager.unregisterExpression(this, id);
 
 			System.out.println("Unregistered sensorId: " + id);
-			active_sensors.get(sensorPosition).setRegisteredWithSwan(false);
+			activeSensors.get(sensorPosition).setRegisteredWithSwan(false);
 
 		} else {
-			System.out.println(active_sensors.get(sensorPosition).getExpression() + " was already unregistered");
+			System.out.println(activeSensors.get(sensorPosition)
+					.getExpression() + " was already unregistered");
 		}
 
 	}
@@ -555,12 +605,15 @@ public class MainActivity extends Activity {
 	 *            the position of the sensor that should be unregistered
 	 */
 	private void unregisterStatusText(int sensorPosition) {
-		String statusId = active_sensors.get(sensorPosition).getStatusRequestCode();
-		if (active_sensors.get(sensorPosition).statusRegisteredWithSwan()) {
+		String statusId = activeSensors.get(sensorPosition)
+				.getStatusRequestCode();
+		if (activeSensors.get(sensorPosition).statusRegisteredWithSwan()) {
 			ExpressionManager.unregisterExpression(this, statusId);
-			active_sensors.get(sensorPosition).setStatusRegisteredWithSwan(false);
+			activeSensors.get(sensorPosition)
+					.setStatusRegisteredWithSwan(false);
 		} else {
-			Log.e(TAG, active_sensors.get(sensorPosition).getName() + " status sensor was already unregistered");
+			Log.e(TAG, activeSensors.get(sensorPosition).getName()
+					+ " status sensor was already unregistered");
 		}
 	}
 
@@ -569,23 +622,17 @@ public class MainActivity extends Activity {
 	 * add it to the sensor list
 	 */
 	private void createAndShowSensorDialog() {
-		final ArrayList<String> list = new ArrayList<String>();
-		for (SensorInfo info : swanSensorList) {
-			list.add(info.toString());
-		}
-		final String[] strings = list.toArray(new String[list.size()]);
-
 		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 		builder.setTitle(getResources().getString(R.string.sensorSelection));
-		builder.setAdapter(new SensorSelectSpinnerAdapter(MainActivity.this, R.layout.spinner_row, strings, swanSensorList),
+		builder.setAdapter(new SensorSelectSpinnerAdapter(MainActivity.this,
+				R.layout.spinner_row, swanSensorList),
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int item) {
 						addItemToList(item);
 					}
 				});
 
-		AlertDialog alert = builder.create();
-		alert.show();
+		builder.create().show();
 	}
 
 	/**
@@ -601,8 +648,11 @@ public class MainActivity extends Activity {
 			Log.e(TAG, "Error: incorrect sensor Position");
 			return;
 		}
-		SensorObject sensor = active_sensors.get(sensorPosition);
+		SensorObject sensor = activeSensors.get(sensorPosition);
 		// Check if the value is a location object
+		if (reading == null || reading.getValue() == null) {
+			return;
+		}
 		if (reading.getValue().getClass().equals(Location.class)) {
 			String locationReading = handleLocationObject(reading);
 			sensor.setReadings(locationReading);
@@ -614,11 +664,14 @@ public class MainActivity extends Activity {
 		String data = reading.getValue().toString();
 
 		// Check whether the data string should be shortened
-		if (data.contains(".") && data.length() > 6 && (!((unit.equals("lat") || unit.equals("long"))))) {
+		if (data.contains(".") && data.length() > 6
+				&& (!((unit.equals("lat") || unit.equals("long"))))) {
 			// data = data.substring(0, 6);
 		}
 
-		String dataMessage = String.format(getResources().getString(R.string.newReadingFormatted), data) + " " + unit;
+		String dataMessage = String.format(
+				getResources().getString(R.string.newReadingFormatted), data)
+				+ " " + unit;
 		sensor.setReadings(dataMessage);
 
 		if (recording) {
@@ -637,24 +690,25 @@ public class MainActivity extends Activity {
 	private String handleLocationObject(TimestampedValue reading) {
 		// Check if user wants gpx/tcx to be generated
 		boolean isTCX = getExportFormat();
-		
-		if (prefs.getBoolean(getResources().getString(R.string.exportTracksKey), true)) {
+
+		if (prefs.getBoolean(
+				getResources().getString(R.string.exportTracksKey), true)) {
 			if (recording) {
 				if (gpsFile == null) {
 					gpsFile = new GPSTrackExporter(isTCX);
 				}
-				Toast.makeText(this, "Location object detected", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "Location object detected",
+						Toast.LENGTH_SHORT).show();
 				gpsFile.addTrackPoint((Location) reading.getValue());
-				if(isTCX){
+				if (isTCX) {
 					return getResources().getString(R.string.TCXFileGenerated);
-				}
-				else{
+				} else {
 					return getResources().getString(R.string.GPXFileGenerated);
 				}
-			}
-			else{
+			} else {
 				// Message when not recording
-				return getResources().getString(R.string.TrackFileWillBeGenerated);
+				return getResources().getString(
+						R.string.TrackFileWillBeGenerated);
 			}
 		}
 		// Message when GPX/TCX export disabled in settings.
@@ -693,9 +747,13 @@ public class MainActivity extends Activity {
 	 */
 	private void exportToServer(TimestampedValue reading, SensorObject sensor) {
 		JSONObject json = buildJSONObject(reading, sensor);
-		String serverIP = prefs.getString(getResources().getString(R.string.serverAddressKey), "127.0.0.1");
-		String serverPort = prefs.getString(getResources().getString(R.string.serverPortKey), "6789");
-		new SendJSONObjectToServer().execute(serverIP, serverPort, json.toString());
+		String serverIP = prefs.getString(
+				getResources().getString(R.string.serverAddressKey),
+				"127.0.0.1");
+		String serverPort = prefs.getString(
+				getResources().getString(R.string.serverPortKey), "6789");
+		new SendJSONObjectToServer().execute(serverIP, serverPort,
+				json.toString());
 	}
 
 	/**
@@ -708,7 +766,8 @@ public class MainActivity extends Activity {
 	 *            the position of the corresponding sensor
 	 * @return returns a json object with sensor information
 	 */
-	private JSONObject buildJSONObject(TimestampedValue reading, SensorObject sensor) {
+	private JSONObject buildJSONObject(TimestampedValue reading,
+			SensorObject sensor) {
 		JSONObject json = new JSONObject();
 		try {
 			json.put("timestamp", reading.getTimestamp());
@@ -717,7 +776,7 @@ public class MainActivity extends Activity {
 			json.put("unit", sensor.getCurrentUnit());
 			String expression = sensor.getExpression();
 			json.put("expression", sensor.getExpression());
-			json.put("valuePath", sensorTools.parseExpression(expression)[1]);
+			json.put("valuePath", SensorTools.parseExpression(expression)[1]);
 		} catch (JSONException e) {
 			Log.w(TAG, "Failed to create JSONObject");
 			e.printStackTrace();
@@ -732,7 +791,8 @@ public class MainActivity extends Activity {
 	 *            ... [server][port][(JSON)String to send]
 	 * 
 	 */
-	private class SendJSONObjectToServer extends AsyncTask<String, Void, String> {
+	private class SendJSONObjectToServer extends
+			AsyncTask<String, Void, String> {
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -740,7 +800,8 @@ public class MainActivity extends Activity {
 				String sentence = params[2];
 				int port = Integer.parseInt(params[1]);
 				Socket clientSocket = new Socket(params[0], port);
-				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+				DataOutputStream outToServer = new DataOutputStream(
+						clientSocket.getOutputStream());
 				outToServer.writeBytes(sentence + '\n');
 				outToServer.flush();
 				clientSocket.close();
@@ -778,7 +839,7 @@ public class MainActivity extends Activity {
 	 *            data
 	 */
 	private void handleStatusReading(String reading, int sensorPosition) {
-		active_sensors.get(sensorPosition).setStatus(reading);
+		activeSensors.get(sensorPosition).setStatus(reading);
 		updateListViewAdapter();
 	}
 
@@ -790,9 +851,10 @@ public class MainActivity extends Activity {
 	 */
 	private void setCorrespondingUnit(SensorObject sensor) {
 		String unit = "";
-		ArrayList<String> valuePaths = swanSensorList.get(sensor.getSensorId()).getValuePaths();
+		ArrayList<String> valuePaths = swanSensorList.get(sensor.getSensorId())
+				.getValuePaths();
 
-		String valuePath = sensorTools.parseExpression(sensor.getExpression())[1];
+		String valuePath = SensorTools.parseExpression(sensor.getExpression())[1];
 		for (int i = 0; i < valuePaths.size(); i++) {
 			if (valuePath.equals(valuePaths.get(i).toString())) {
 				unit = sensor.getUnits().get(i);
@@ -809,7 +871,7 @@ public class MainActivity extends Activity {
 	 */
 	private void checkRegisteredSensors() {
 		int i = 0;
-		for (SensorObject s : active_sensors) {
+		for (SensorObject s : activeSensors) {
 			if (!s.registeredWithSwan()) {
 				Log.i(TAG, "Retrying register: " + s.getExpression());
 				registerSensor(i);
@@ -829,9 +891,9 @@ public class MainActivity extends Activity {
 	 */
 	private void closeAllExportingFiles() {
 		int i = 0;
-		while (i < active_sensors.size()) {
-			if (active_sensors.get(i).exportToFile()) {
-				active_sensors.get(i).stopExporting();
+		while (i < activeSensors.size()) {
+			if (activeSensors.get(i).exportToFile()) {
+				activeSensors.get(i).stopExporting();
 			}
 			i++;
 		}
@@ -848,13 +910,13 @@ public class MainActivity extends Activity {
 
 			// If temp sensor is not null, this is a newly added sensor, so add
 			// it to the active list.
-			if (temp_sensor != null) {
-				active_sensors.add(temp_sensor);
-				temp_sensor = null;
+			if (tempSensor != null) {
+				activeSensors.add(tempSensor);
+				tempSensor = null;
 			}
-			for (int i = 0; i < active_sensors.size(); i++) {
-				if (Integer.parseInt(active_sensors.get(i).getRequestCode()) == requestCode) {
-					SensorObject sensor = active_sensors.get(i);
+			for (int i = 0; i < activeSensors.size(); i++) {
+				if (Integer.parseInt(activeSensors.get(i).getRequestCode()) == requestCode) {
+					SensorObject sensor = activeSensors.get(i);
 					sensor.setExpression(data.getStringExtra("Expression"));
 					setCorrespondingUnit(sensor);
 
@@ -884,7 +946,8 @@ public class MainActivity extends Activity {
 	 * @return returns true if TCX is desired, false in case of GPX
 	 */
 	private boolean getExportFormat() {
-		String type = prefs.getString(getResources().getString(R.string.trackExportFormatkey), "TCX");
+		String type = prefs.getString(
+				getResources().getString(R.string.trackExportFormatkey), "TCX");
 		if (type.equals("TCX")) {
 			return true;
 		}
@@ -898,12 +961,14 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onPause() {
+		System.out.println("onPause");
 		super.onPause();
 		unregisterSensorsWithSwan();
 	}
 
 	@Override
 	protected void onResume() {
+		System.out.println("onResume");
 		super.onResume();
 		registerSensorsWithSwan();
 	}
@@ -926,29 +991,34 @@ public class MainActivity extends Activity {
 	protected void exitByBackKey() {
 		String alertMessage = getResources().getString(R.string.exitApp);
 		if (recording) {
-			alertMessage = alertMessage + getResources().getString(R.string.exitWhileRecording);
+			alertMessage = alertMessage
+					+ getResources().getString(R.string.exitWhileRecording);
 		}
-		AlertDialog alertbox = new AlertDialog.Builder(this).setMessage(alertMessage)
-				.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+		AlertDialog alertbox = new AlertDialog.Builder(this)
+				.setMessage(alertMessage)
+				.setPositiveButton(getResources().getString(R.string.yes),
+						new DialogInterface.OnClickListener() {
 
-					public void onClick(DialogInterface arg0, int arg1) {
+							public void onClick(DialogInterface arg0, int arg1) {
 
-						finish();
-						// Unregister all sensors
-						unregisterSensorsWithSwan();
+								finish();
+								// Unregister all sensors
+								unregisterSensorsWithSwan();
 
-						// Stop recording if necessary
-						if (recording) {
-							stopRecording();
-						}
+								// Stop recording if necessary
+								if (recording) {
+									stopRecording();
+								}
 
-					}
-				}).setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+							}
+						})
+				.setNegativeButton(getResources().getString(R.string.no),
+						new DialogInterface.OnClickListener() {
 
-					// do something when the button is clicked
-					public void onClick(DialogInterface arg0, int arg1) {
-					}
-				}).show();
+							// do something when the button is clicked
+							public void onClick(DialogInterface arg0, int arg1) {
+							}
+						}).show();
 
 	}
 

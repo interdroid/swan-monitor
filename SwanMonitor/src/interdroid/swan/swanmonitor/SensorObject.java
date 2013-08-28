@@ -8,19 +8,22 @@ import android.graphics.drawable.Drawable;
 
 public class SensorObject {
 
+	static int currentCode = 1234;
+
 	/**
 	 * Sets up the Sensor Object with the required default values
 	 */
 	SensorObject() {
 		this.registeredWithSwan = false;
 		this.statusRegisteredWithSwan = false;
-		this.requestCode = "" + this.hashCode();
+		this.requestCode = "" + (currentCode++);
 	}
-
 
 	/**
 	 * Set the name of sensor
-	 * @param name Set the name of the sensor
+	 * 
+	 * @param name
+	 *            Set the name of the sensor
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -28,6 +31,7 @@ public class SensorObject {
 
 	/**
 	 * Returns the name of the sensor
+	 * 
 	 * @return The name of the sensor
 	 */
 	public String getName() {
@@ -36,7 +40,9 @@ public class SensorObject {
 
 	/**
 	 * Set the status of the sensor
-	 * @param status The status of the sensor as a String
+	 * 
+	 * @param status
+	 *            The status of the sensor as a String
 	 */
 	public void setStatus(String status) {
 		this.status = status;
@@ -44,6 +50,7 @@ public class SensorObject {
 
 	/**
 	 * Returns the status of the sensor
+	 * 
 	 * @return The status of the sensor
 	 */
 	public String getStatus() {
@@ -52,10 +59,12 @@ public class SensorObject {
 		}
 		return status;
 	}
-	
+
 	/**
 	 * Returns the name and status of the sensor
-	 * @return the name and status (between parentheses) of this sensor. (e.g. "Battery (not charging)")
+	 * 
+	 * @return the name and status (between parentheses) of this sensor. (e.g.
+	 *         "Battery (not charging)")
 	 */
 	public String getNameWithStatus() {
 		if (getStatus().equals("")) {
@@ -67,7 +76,9 @@ public class SensorObject {
 
 	/**
 	 * Set the reading (latest value/data) of this sensor
-	 * @param readings A string containing the latest data
+	 * 
+	 * @param readings
+	 *            A string containing the latest data
 	 */
 	public void setReadings(String readings) {
 		this.readings = readings;
@@ -75,6 +86,7 @@ public class SensorObject {
 
 	/**
 	 * Get the (latest) readings of this sensor
+	 * 
 	 * @return The last added reading of this sensor
 	 */
 	public String getReadings() {
@@ -83,7 +95,9 @@ public class SensorObject {
 
 	/**
 	 * Set the sensorId of this sensor
-	 * @param sensorId the id of this sensor
+	 * 
+	 * @param sensorId
+	 *            the id of this sensor
 	 */
 	public void setSensorId(int sensorId) {
 		this.sensorId = sensorId;
@@ -91,6 +105,7 @@ public class SensorObject {
 
 	/**
 	 * Returns the sensorId of this sensor
+	 * 
 	 * @return the Id of this sensor
 	 */
 	public int getSensorId() {
@@ -99,7 +114,9 @@ public class SensorObject {
 
 	/**
 	 * Set the expression
-	 * @param expression The expression that will be used to register with SWAN
+	 * 
+	 * @param expression
+	 *            The expression that will be used to register with SWAN
 	 */
 	public void setExpression(String expression) {
 		this.expression = expression;
@@ -107,14 +124,16 @@ public class SensorObject {
 
 	/**
 	 * Get the current expression of the sensor
+	 * 
 	 * @return the expression of the sensor (to register with SWAN)
 	 */
 	public String getExpression() {
 		return expression;
 	}
-	
+
 	/**
 	 * Returns a unique request code
+	 * 
 	 * @return A unique request code
 	 */
 	public String getRequestCode() {
@@ -123,6 +142,7 @@ public class SensorObject {
 
 	/**
 	 * Returns a unique Status request code
+	 * 
 	 * @return A unique statusRequest code
 	 */
 	public String getStatusRequestCode() {
@@ -131,14 +151,17 @@ public class SensorObject {
 
 	/**
 	 * Set a Drawable as the icon for this sensor
-	 * @param icon The Drawable icon of this sensor
+	 * 
+	 * @param icon
+	 *            The Drawable icon of this sensor
 	 */
 	public void setIcon(Drawable icon) {
 		this.icon = icon;
 	}
-	
+
 	/**
 	 * Returns the Drawable icon of this sensor
+	 * 
 	 * @return A drawable icon of the sensor
 	 */
 	public Drawable getIcon() {
@@ -147,7 +170,10 @@ public class SensorObject {
 
 	/**
 	 * Set the units array
-	 * @param units An arrayList<string> of units in the same order as the valuePaths
+	 * 
+	 * @param units
+	 *            An arrayList<string> of units in the same order as the
+	 *            valuePaths
 	 */
 	public void setUnits(ArrayList<String> units) {
 		this.units = units;
@@ -155,7 +181,9 @@ public class SensorObject {
 
 	/**
 	 * Get a list of all the units for this sensor
-	 * @return An arrayList of strings with the units for this sensor. Same ordering as the valuePaths
+	 * 
+	 * @return An arrayList of strings with the units for this sensor. Same
+	 *         ordering as the valuePaths
 	 */
 	public ArrayList<String> getUnits() {
 		return units;
@@ -163,24 +191,28 @@ public class SensorObject {
 
 	/**
 	 * Set to true if a "status_text" valuePath is available
-	 * @param hasStatusTextVP set to true if "status_text" valuepath is available
+	 * 
+	 * @param hasStatusTextVP
+	 *            set to true if "status_text" valuepath is available
 	 */
 	public void setHasStatusTextVP(boolean hasStatusTextVP) {
 		this.hasStatusTextVP = hasStatusTextVP;
 	}
-	
-	
+
 	/**
 	 * Used to check if the sensor has a Status_text valuepath
+	 * 
 	 * @return True if this sensor has a "status_text" valuePath
 	 */
 	public boolean hasStatusTextVP() {
 		return hasStatusTextVP;
 	}
-	
+
 	/**
 	 * Set to true if expression was succesfully registered to SWAN
-	 * @param registeredWithSwan set to true if successfully registered to SWAN
+	 * 
+	 * @param registeredWithSwan
+	 *            set to true if successfully registered to SWAN
 	 */
 	public void setRegisteredWithSwan(boolean registeredWithSwan) {
 		this.registeredWithSwan = registeredWithSwan;
@@ -188,23 +220,27 @@ public class SensorObject {
 
 	/**
 	 * Returns true if sensor expression was successfully registered to SWAN
+	 * 
 	 * @return True if expression successfully registered to SWAN
 	 */
 	public boolean registeredWithSwan() {
 		return registeredWithSwan;
 	}
 
-	
 	/**
 	 * Set to true if status expression was successfully registered to SWAN
-	 * @param statusRegisteredWithSwan true if Status expression was successfully registered to SWAN
+	 * 
+	 * @param statusRegisteredWithSwan
+	 *            true if Status expression was successfully registered to SWAN
 	 */
 	public void setStatusRegisteredWithSwan(boolean statusRegisteredWithSwan) {
 		this.statusRegisteredWithSwan = statusRegisteredWithSwan;
 	}
-	
+
 	/**
-	 * Returns true if sensor status expression is successfully registered to SWAN
+	 * Returns true if sensor status expression is successfully registered to
+	 * SWAN
+	 * 
 	 * @return True if successfully registered
 	 */
 	public boolean statusRegisteredWithSwan() {
@@ -213,7 +249,9 @@ public class SensorObject {
 
 	/**
 	 * Set whether sensor data should be exported to a file
-	 * @param exportToFile True if export to file is desired
+	 * 
+	 * @param exportToFile
+	 *            True if export to file is desired
 	 */
 	public void setExportToFile(boolean exportToFile) {
 		this.exportToFile = exportToFile;
@@ -228,6 +266,7 @@ public class SensorObject {
 
 	/**
 	 * Returns whether sensor data should be exported to a file
+	 * 
 	 * @return True if data should be exported to a file
 	 */
 	public boolean exportToFile() {
@@ -236,7 +275,9 @@ public class SensorObject {
 
 	/**
 	 * Set whether sensor data should be exported to a server
-	 * @param exportToServer True if export to server is desired
+	 * 
+	 * @param exportToServer
+	 *            True if export to server is desired
 	 */
 	public void setExportToServer(boolean exportToServer) {
 		this.exportToServer = exportToServer;
@@ -245,25 +286,30 @@ public class SensorObject {
 
 	/**
 	 * Returns whether the sensor data should be exported to a server
+	 * 
 	 * @return True if data should be exported to server
 	 */
 	public boolean exportToServer() {
 		return this.exportToServer;
 	}
-	
+
 	/**
 	 * Export current reading to a file
-	 * @param reading The reading retrieved by the sensor
+	 * 
+	 * @param reading
+	 *            The reading retrieved by the sensor
 	 */
 	public void export(TimestampedValue reading) {
 		// If this is the first reading start by creating the file and the first
 		// line
 		if (file == null) {
-			String sensorName = sensorTools.parseExpression(getExpression())[0];
-			file = new FileExporter(sensorName + "_" + requestCode, CSV, firstLine);
+			String sensorName = SensorTools.parseExpression(getExpression())[0];
+			file = new FileExporter(sensorName + "_" + requestCode, CSV,
+					firstLine);
 		}
-		String[] data = sensorTools.parseExpression(getExpression());
-		String dataLine = data[0] + ";" + data[1] + ";" + reading.getValue().toString() + ";" + reading.getTimestamp();
+		String[] data = SensorTools.parseExpression(getExpression());
+		String dataLine = data[0] + ";" + data[1] + ";"
+				+ reading.getValue().toString() + ";" + reading.getTimestamp();
 		file.addLine(dataLine);
 	}
 
@@ -279,33 +325,36 @@ public class SensorObject {
 
 	/**
 	 * Set the unit that matches the current valuePath
-	 * @param unit The unit that matches the current valuePath
+	 * 
+	 * @param unit
+	 *            The unit that matches the current valuePath
 	 */
 	public void setCurrentUnit(String unit) {
 		this.currentUnit = unit;
 	}
-	
+
 	/**
 	 * Returns the unit that matches the current valuePath
+	 * 
 	 * @return the current unit of the values that the sensor is producing
 	 */
 	public String getCurrentUnit() {
 		return currentUnit;
 	}
-	
+
 	/**
 	 * The icon that matches the Sensor
 	 */
 	private Drawable icon;
 	/**
-	 * Name = Name of the sensor
-	 * Status = Current status of the sensor of available
-	 * Readings = The data retrieved by the sensor
-	 * Expression = The expression used to connect to SWAN
-	 * requestCode = A unique String used as an ID when regestring to SWAN
-	 * currentUnit = The unit matching the current valuePath of the current Expression
+	 * Name = Name of the sensor Status = Current status of the sensor of
+	 * available Readings = The data retrieved by the sensor Expression = The
+	 * expression used to connect to SWAN requestCode = A unique String used as
+	 * an ID when regestring to SWAN currentUnit = The unit matching the current
+	 * valuePath of the current Expression
 	 */
-	private String name, status, readings, expression, requestCode, currentUnit;
+	private String name, status, readings, expression, requestCode,
+			currentUnit;
 	/**
 	 * The id of the sensor in Swan (e.g. used to call configuration activity)
 	 */
@@ -315,17 +364,21 @@ public class SensorObject {
 	 */
 	private ArrayList<String> units;
 	/**
-	 * hasStatusTextVP = true of the current Sensor has a "status_text" valuePath
-	 * registeredWithSwan = true if succesfully registered with Swan
-	 * statusRegisteredWithSwan = true if "status_text" valuePath is also succesfully registered with Swan
-	 * exportToFile = true if the user wants the sensor data to be exported to a file when recording
-	 * exportToServer = true if the user wants the sensor data to be exported to a server when recording
+	 * hasStatusTextVP = true of the current Sensor has a "status_text"
+	 * valuePath registeredWithSwan = true if succesfully registered with Swan
+	 * statusRegisteredWithSwan = true if "status_text" valuePath is also
+	 * succesfully registered with Swan exportToFile = true if the user wants
+	 * the sensor data to be exported to a file when recording exportToServer =
+	 * true if the user wants the sensor data to be exported to a server when
+	 * recording
 	 */
-	private boolean hasStatusTextVP, registeredWithSwan, statusRegisteredWithSwan, exportToFile, exportToServer;
-	
+	private boolean hasStatusTextVP, registeredWithSwan,
+			statusRegisteredWithSwan, exportToFile, exportToServer;
+
 	/**
 	 * Used to export sensor data in uniform format.
 	 */
-	private static final String CSV = ".csv", firstLine = "sensorName;valuePath;value;timestamp";
+	private static final String CSV = ".csv",
+			firstLine = "sensorName;valuePath;value;timestamp";
 	private FileExporter file = null;
 }

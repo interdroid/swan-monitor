@@ -5,7 +5,7 @@ import interdroid.swan.swansong.ExpressionFactory;
 import interdroid.swan.swansong.ExpressionParseException;
 import interdroid.swan.swansong.SensorValueExpression;
 
-public class sensorTools {
+public class SensorTools {
 	
 	public static String FILENAME = "filename";
 	public static String FILEPATH = "filepath";
